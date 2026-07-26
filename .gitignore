@@ -1,0 +1,6 @@
+.DS_Store
+.idea/
+.vscode/
+dist/
+tests/artifacts/
+*.log

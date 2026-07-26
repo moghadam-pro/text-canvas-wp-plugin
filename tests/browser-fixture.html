@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MPRO Text Canvas Browser Fixture</title>
+<link rel="stylesheet" href="../assets/css/frontend.css">
+<style>
+html,body{margin:0;min-height:100%;background:#fff}.fixture{width:1100px;margin:187px auto 0}@media(max-width:767px){.fixture{width:370px;margin:16px auto 0}}
+#test-results{position:fixed;left:8px;bottom:8px;font:12px monospace;background:#fff;padding:6px;border:1px solid #ddd;z-index:999999}
+</style>
+<script>
+window.mproTextCanvasGlobal={
+ fonts:[{family:'Arial, Helvetica, sans-serif',label:'Arial — System'},{family:'Georgia, serif',label:'Georgia — System'}],
+ palette:[{name:'Yellow',value:'#ffb700'},{name:'Black',value:'#000000'},{name:'White',value:'#ffffff'}],
+ i18n:{fontTitle:'Choose a font',textColorTitle:'Text color',backgroundTitle:'Background color',apply:'Apply',cancel:'Cancel',maxLayers:'You can add up to three text layers.'}
+};
+</script>
+</head>
+<body>
+<div class="fixture">
+<div class="mpro-tc" data-mpro-config='{"defaultText":"YOU CAN EDIT THIS TEXT\nWRITE EVERYTHING YOU WANT\nAND MOVE","maxLayers":3,"background":"#ffb700","textColor":"#000000","fontFamily":"Arial, Helvetica, sans-serif","fontWeight":"700","lineHeight":1.45,"textAlign":"right","desktop":{"x":0.68,"y":0.84,"width":0.59,"fontSize":24},"tablet":{"x":0.68,"y":0.84,"width":0.59,"fontSize":24},"mobile":{"x":0.52,"y":0.80,"width":0.78,"fontSize":24},"fonts":[{"family":"Arial, Helvetica, sans-serif","label":"Arial — System"},{"family":"Georgia, serif","label":"Georgia — System"}],"palette":[{"name":"Yellow","value":"#ffb700"},{"name":"Black","value":"#000000"},{"name":"White","value":"#ffffff"}]}'>
+  <div class="mpro-tc__layout">
+    <div class="mpro-tc__toolbar" aria-label="Text canvas controls">
+      <div class="mpro-tc__tools">
+        <button class="mpro-tc__tool mpro-tc__tool--background" type="button" data-mpro-tool="background"><span class="mpro-tc__swatch"></span></button>
+        <button class="mpro-tc__tool mpro-tc__tool--text" type="button" data-mpro-tool="text-color"><span class="mpro-tc__swatch"></span></button>
+        <button class="mpro-tc__tool mpro-tc__tool--font" type="button" data-mpro-tool="font">Aa</button>
+      </div>
+      <div class="mpro-tc__arrow"><svg viewBox="0 0 120 120"><path d="M12 12 L102 102 M102 34 V102 H34" fill="none" stroke="currentColor" stroke-width="14" stroke-linecap="square" stroke-linejoin="miter"/></svg></div>
+      <div class="mpro-tc__actions">
+        <button type="button" class="mpro-tc__action" data-mpro-action="reset">RESET</button>
+        <button type="button" class="mpro-tc__action" data-mpro-action="add">ADD TEXT</button>
+        <button type="button" class="mpro-tc__action" data-mpro-action="export-transparent"><span class="mpro-tc__label--desktop">EXPORT TRANSPARENT</span><span class="mpro-tc__label--mobile">EXPORT PNG</span></button>
+        <button type="button" class="mpro-tc__action" data-mpro-action="export-background"><span class="mpro-tc__label--desktop">EXPORT WITH BG</span><span class="mpro-tc__label--mobile">EXPORT JPG</span></button>
+      </div>
+    </div>
+    <div class="mpro-tc__frame" data-mpro-frame role="application"><div class="mpro-tc__stage" data-mpro-stage></div></div>
+  </div>
+  <div class="mpro-tc__modal" data-mpro-modal hidden aria-hidden="true"><div class="mpro-tc__modal-backdrop" data-mpro-modal-close></div><div class="mpro-tc__dialog" role="dialog" aria-modal="true"><div class="mpro-tc__dialog-header"><h3 data-mpro-modal-title></h3><button type="button" class="mpro-tc__close" data-mpro-modal-close>×</button></div><div class="mpro-tc__dialog-body" data-mpro-modal-body></div></div></div>
+  <div class="mpro-tc__status" data-mpro-status role="status"></div>
+</div>
+</div>
+<div id="test-results">waiting</div>
+<script src="../assets/js/frontend.js"></script>
+<script>
+setTimeout(async function(){
+ const root=document.querySelector('.mpro-tc');
+ const results=[];
+ const pass=(name,condition)=>results.push(name+':' +(condition?'pass':'fail'));
+ pass('init',root.dataset.mproInitialized==='true');
+ pass('initial-layer',root.querySelectorAll('.mpro-tc__layer').length===1);
+
+ let layer=root.querySelector('.mpro-tc__layer');
+ const pointer=(type,id,x,y)=>new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:id,pointerType:'touch',clientX:x,clientY:y,isPrimary:id===1});
+ layer.dispatchEvent(pointer('pointerdown',1,160,360));
+ layer.dispatchEvent(pointer('pointerup',1,160,360));
+ pass('tap-edit',layer.classList.contains('is-editing'));
+ document.body.dispatchEvent(pointer('pointerdown',9,2,2));
+ pass('outside-exit',!layer.classList.contains('is-editing'));
+
+ const startX=Number(layer.dataset.x);
+ layer.dispatchEvent(pointer('pointerdown',2,160,360));
+ layer.dispatchEvent(pointer('pointermove',2,190,380));
+ layer.dispatchEvent(pointer('pointerup',2,190,380));
+ pass('drag',Math.abs(Number(layer.dataset.x)-startX)>.001);
+
+ const startSize=Number(layer.dataset.fontSize);
+ layer.dispatchEvent(pointer('pointerdown',3,130,350));
+ layer.dispatchEvent(pointer('pointerdown',4,170,350));
+ layer.dispatchEvent(pointer('pointermove',4,220,350));
+ layer.dispatchEvent(pointer('pointerup',4,220,350));
+ layer.dispatchEvent(pointer('pointerup',3,130,350));
+ pass('pinch-resize',Number(layer.dataset.fontSize)>startSize);
+
+ root.querySelector('[data-mpro-action="reset"]').click();
+ const add=root.querySelector('[data-mpro-action="add"]'); add.click(); add.click(); add.click();
+ pass('max-layers',root.querySelectorAll('.mpro-tc__layer').length===3);
+ pass('add-disabled',add.disabled);
+ root.querySelector('[data-mpro-action="reset"]').click();
+ pass('reset',root.querySelectorAll('.mpro-tc__layer').length===1);
+
+ root.querySelector('[data-mpro-tool="font"]').click();
+ pass('font-modal',!root.querySelector('[data-mpro-modal]').hidden && root.querySelectorAll('.mpro-tc__font-option').length===2);
+ root.querySelector('[data-mpro-modal-close]').click();
+ root.querySelector('[data-mpro-tool="background"]').click();
+ pass('color-modal',!root.querySelector('[data-mpro-modal]').hidden && !!root.querySelector('.mpro-tc__color-main input[type="color"]'));
+ root.querySelector('[data-mpro-modal-close]').click();
+
+ const downloads=[];
+ const originalAnchorClick=HTMLAnchorElement.prototype.click;
+ HTMLAnchorElement.prototype.click=function(){downloads.push({name:this.download,href:this.href});};
+ root.querySelector('[data-mpro-action="export-transparent"]').click();
+ await new Promise(resolve=>setTimeout(resolve,150));
+ root.querySelector('[data-mpro-action="export-background"]').click();
+ await new Promise(resolve=>setTimeout(resolve,150));
+ HTMLAnchorElement.prototype.click=originalAnchorClick;
+ const pngDownload=downloads.find(item=>/\.png$/.test(item.name)&&item.href.indexOf('data:image/png')===0);
+ const jpgDownload=downloads.find(item=>/\.jpg$/.test(item.name)&&item.href.indexOf('data:image/jpeg')===0);
+ pass('export-png',!!pngDownload);
+ pass('export-jpg',!!jpgDownload);
+ const inspectImage=async function(download){
+   const image=new Image();
+   await new Promise((resolve,reject)=>{image.onload=resolve;image.onerror=reject;image.src=download.href;});
+   const canvas=document.createElement('canvas'); canvas.width=image.naturalWidth; canvas.height=image.naturalHeight;
+   const ctx=canvas.getContext('2d'); ctx.drawImage(image,0,0);
+   return {width:image.naturalWidth,height:image.naturalHeight,pixel:Array.from(ctx.getImageData(0,0,1,1).data)};
+ };
+ const exportFrame=root.querySelector('.mpro-tc__frame').getBoundingClientRect();
+ const pngInfo=await inspectImage(pngDownload); const jpgInfo=await inspectImage(jpgDownload);
+ pass('export-size',pngInfo.width===Math.round(exportFrame.width)&&pngInfo.height===Math.round(exportFrame.height)&&jpgInfo.width===Math.round(exportFrame.width)&&jpgInfo.height===Math.round(exportFrame.height));
+ pass('transparent-corner',pngInfo.pixel[3]===0);
+ pass('square-bg-corner',jpgInfo.pixel[0]>240&&jpgInfo.pixel[1]>150&&jpgInfo.pixel[2]<40&&jpgInfo.pixel[3]===255);
+
+ root.querySelector('[data-mpro-action="reset"]').click();
+ const frame=root.querySelector('.mpro-tc__frame').getBoundingClientRect();
+ results.push('frame:'+Math.round(frame.width)+'x'+Math.round(frame.height));
+ document.getElementById('test-results').textContent=results.join(' | ');
+ document.body.dataset.tests=results.every(x=>!x.includes('fail'))?'pass':'fail';
+},300);
+</script>
+</body>
+</html>

@@ -1,0 +1,495 @@
+.mpro-tc,
+.mpro-tc * {
+	box-sizing: border-box;
+}
+
+.mpro-tc {
+	--mpro-tc-panel-width: 308px;
+	--mpro-tc-gap: 48px;
+	position: relative;
+	width: 100%;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	color: #000;
+}
+
+.mpro-tc__layout {
+	display: grid;
+	grid-template-columns: minmax(180px, var(--mpro-tc-panel-width)) minmax(0, 1fr);
+	gap: var(--mpro-tc-gap);
+	align-items: start;
+	width: 100%;
+}
+
+.mpro-tc__toolbar {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	padding-top: 12px;
+}
+
+.mpro-tc__tools {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 18px;
+	min-height: 26px;
+}
+
+.mpro-tc__tool {
+	appearance: none;
+	border: 0;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	line-height: 1;
+	padding: 0;
+	margin: 0;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 24px;
+	min-height: 24px;
+}
+
+.mpro-tc__tool:focus-visible,
+.mpro-tc__action:focus-visible,
+.mpro-tc__close:focus-visible,
+.mpro-tc__font-option:focus-visible,
+.mpro-tc__color-preset:focus-visible {
+	outline: 2px solid currentColor;
+	outline-offset: 3px;
+}
+
+.mpro-tc__swatch {
+	display: block;
+	width: 24px;
+	height: 24px;
+	border-radius: 4px;
+	border: 1px solid rgba(0, 0, 0, 0.06);
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.mpro-tc__tool--font {
+	font-size: 24px;
+	font-weight: 400;
+	letter-spacing: -0.03em;
+}
+
+.mpro-tc__arrow {
+	width: 124px;
+	height: 124px;
+	margin: 85px 0 30px auto;
+	color: #000;
+}
+
+.mpro-tc__arrow svg {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.mpro-tc__actions {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 16px;
+}
+
+.mpro-tc__action {
+	appearance: none;
+	border: 0;
+	background: #f5f4ef;
+	color: #000;
+	font: inherit;
+	font-size: 18px;
+	font-weight: 400;
+	line-height: 1.2;
+	text-align: right;
+	min-height: 44px;
+	padding: 10px 14px;
+	cursor: pointer;
+	transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.mpro-tc__action:hover {
+	opacity: 0.82;
+}
+
+.mpro-tc__action:active {
+	transform: translateY(1px);
+}
+
+.mpro-tc__action[disabled],
+.mpro-tc__action[aria-disabled="true"] {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+
+.mpro-tc__label--mobile {
+	display: none;
+}
+
+.mpro-tc__frame {
+	position: relative;
+	width: 100%;
+	height: 500px;
+	padding: 32px;
+	background-color: #ffb700;
+	border-radius: 44px;
+	overflow: hidden;
+	isolation: isolate;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.mpro-tc__stage {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+}
+
+.mpro-tc__layer {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 59%;
+	transform: translate(-50%, -50%);
+	margin: 0;
+	padding: 4px;
+	border: 1px solid transparent;
+	outline: 0;
+	cursor: move;
+	touch-action: none;
+	user-select: none;
+	-webkit-user-select: none;
+	min-width: 48px;
+	min-height: 1.2em;
+	z-index: 1;
+}
+
+.mpro-tc__text {
+	width: 100%;
+	min-width: 0;
+	min-height: 1.2em;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	outline: 0;
+	color: #000;
+	font-size: 24px;
+	font-weight: 700;
+	line-height: 1.45;
+	text-align: right;
+	white-space: pre-wrap;
+	word-break: break-word;
+	overflow-wrap: anywhere;
+	cursor: inherit;
+	user-select: inherit;
+	-webkit-user-select: inherit;
+}
+
+.mpro-tc__layer.is-selected {
+	border-color: rgba(0, 0, 0, 0.28);
+}
+
+.mpro-tc__layer.is-editing {
+	cursor: text;
+	touch-action: manipulation;
+	user-select: text;
+	-webkit-user-select: text;
+	border-color: rgba(0, 0, 0, 0.48);
+}
+
+.mpro-tc__text[contenteditable="true"]:empty::before {
+	content: attr(data-placeholder);
+	opacity: 0.45;
+}
+
+.mpro-tc__layer-handle,
+.mpro-tc__layer-delete {
+	position: absolute;
+	appearance: none;
+	border: 0;
+	padding: 0;
+	margin: 0;
+	display: none;
+	align-items: center;
+	justify-content: center;
+	z-index: 3;
+}
+
+.mpro-tc__layer.is-selected:not(.is-editing) .mpro-tc__layer-handle,
+.mpro-tc__layer.is-selected:not(.is-editing) .mpro-tc__layer-delete {
+	display: flex;
+}
+
+.mpro-tc__layer-handle {
+	right: -8px;
+	bottom: -8px;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: #fff;
+	box-shadow: 0 0 0 2px #000;
+	cursor: nwse-resize;
+	touch-action: none;
+}
+
+.mpro-tc__layer-delete {
+	right: -11px;
+	top: -11px;
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	background: #000;
+	color: #fff;
+	font-size: 17px;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.mpro-tc__modal[hidden] {
+	display: none !important;
+}
+
+.mpro-tc__modal {
+	position: fixed;
+	inset: 0;
+	z-index: 999999;
+	display: grid;
+	place-items: center;
+	padding: 20px;
+}
+
+.mpro-tc__modal-backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.48);
+	backdrop-filter: blur(3px);
+}
+
+.mpro-tc__dialog {
+	position: relative;
+	z-index: 1;
+	width: min(520px, 100%);
+	max-height: min(680px, calc(100vh - 40px));
+	display: flex;
+	flex-direction: column;
+	background: #fff;
+	color: #111;
+	border-radius: 16px;
+	box-shadow: 0 24px 80px rgba(0, 0, 0, 0.22);
+	overflow: hidden;
+}
+
+.mpro-tc__dialog-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 20px;
+	padding: 18px 20px;
+	border-bottom: 1px solid #e8e8e8;
+}
+
+.mpro-tc__dialog-header h3 {
+	font: inherit;
+	font-size: 18px;
+	font-weight: 700;
+	margin: 0;
+}
+
+.mpro-tc__close {
+	appearance: none;
+	border: 0;
+	background: transparent;
+	font-size: 30px;
+	line-height: 1;
+	padding: 0;
+	cursor: pointer;
+}
+
+.mpro-tc__dialog-body {
+	padding: 20px;
+	overflow: auto;
+}
+
+.mpro-tc__font-list {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 8px;
+}
+
+.mpro-tc__font-option {
+	appearance: none;
+	width: 100%;
+	border: 1px solid #dedede;
+	border-radius: 8px;
+	background: #fff;
+	color: #111;
+	padding: 13px 14px;
+	text-align: left;
+	font-size: 20px;
+	cursor: pointer;
+}
+
+.mpro-tc__font-option:hover,
+.mpro-tc__font-option.is-active {
+	border-color: #111;
+	background: #f5f5f5;
+}
+
+.mpro-tc__color-editor {
+	display: grid;
+	gap: 18px;
+}
+
+.mpro-tc__color-main {
+	display: grid;
+	grid-template-columns: 80px 1fr;
+	gap: 12px;
+	align-items: center;
+}
+
+.mpro-tc__color-main input[type="color"] {
+	width: 80px;
+	height: 52px;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	padding: 3px;
+	background: #fff;
+}
+
+.mpro-tc__color-main input[type="text"] {
+	width: 100%;
+	height: 44px;
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	padding: 0 12px;
+	font: inherit;
+}
+
+.mpro-tc__color-presets {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.mpro-tc__color-preset {
+	appearance: none;
+	width: 34px;
+	height: 34px;
+	border: 2px solid #fff;
+	border-radius: 7px;
+	box-shadow: 0 0 0 1px #bbb;
+	cursor: pointer;
+}
+
+.mpro-tc__modal-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+}
+
+.mpro-tc__modal-button {
+	appearance: none;
+	border: 1px solid #111;
+	border-radius: 8px;
+	background: #111;
+	color: #fff;
+	padding: 10px 18px;
+	font: inherit;
+	cursor: pointer;
+}
+
+.mpro-tc__modal-button--secondary {
+	background: #fff;
+	color: #111;
+	border-color: #ccc;
+}
+
+.mpro-tc__status {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+	.mpro-tc {
+		--mpro-tc-gap: 16px;
+	}
+
+	.mpro-tc__layout {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.mpro-tc__frame {
+		order: 1;
+		height: 610px;
+		padding: 20px;
+		border-radius: 24px;
+	}
+
+	.mpro-tc__toolbar {
+		order: 2;
+		display: grid;
+		padding-top: 0;
+		grid-template-columns: 1fr auto;
+		grid-template-areas:
+			"arrow tools"
+			"actions actions";
+		align-items: start;
+		gap: 20px 12px;
+	}
+
+	.mpro-tc__tools {
+		grid-area: tools;
+		align-self: center;
+		gap: 18px;
+	}
+
+	.mpro-tc__arrow {
+		grid-area: arrow;
+		width: 78px;
+		height: 78px;
+		margin: 0;
+	}
+
+	.mpro-tc__actions {
+		grid-area: actions;
+		grid-template-columns: 1fr 1fr;
+		gap: 16px;
+	}
+
+	.mpro-tc__action {
+		text-align: center;
+		font-size: 18px;
+		min-height: 44px;
+		padding-inline: 8px;
+	}
+
+	.mpro-tc__label--desktop {
+		display: none;
+	}
+
+	.mpro-tc__label--mobile {
+		display: inline;
+	}
+
+	.mpro-tc__layer {
+		width: 78%;
+	}
+
+	.mpro-tc__text {
+		font-size: 24px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.mpro-tc__action {
+		transition: none;
+	}
+}

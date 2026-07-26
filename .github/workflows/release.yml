@@ -1,0 +1,56 @@
+name: Publish Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .release-trigger
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read release tag
+        id: version
+        shell: bash
+        run: |
+          TAG="$(tr -d '[:space:]' < .release-trigger)"
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][A-Za-z0-9.-]+)?$ ]]; then
+            echo "Invalid release tag: $TAG" >&2
+            exit 1
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: PHP syntax
+        run: find . -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l
+
+      - name: JavaScript syntax
+        run: |
+          node --check assets/js/frontend.js
+          node --check assets/js/admin.js
+
+      - name: Build package
+        run: ./scripts/build-release.sh
+
+      - name: Create or update GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+        shell: bash
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/mpro-text-canvas.zip --clobber
+          else
+            gh release create "$TAG" \
+              dist/mpro-text-canvas.zip \
+              --target "$GITHUB_SHA" \
+              --title "MPRO Text Canvas $TAG" \
+              --notes-file RELEASE-NOTES.md
+          fi

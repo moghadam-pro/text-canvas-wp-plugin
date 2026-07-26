@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: PHP syntax
+        run: find . -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l
+      - name: JavaScript syntax
+        run: |
+          node --check assets/js/frontend.js
+          node --check assets/js/admin.js
+      - name: Build release package
+        run: ./scripts/build-release.sh
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mpro-text-canvas
+          path: dist/mpro-text-canvas.zip
