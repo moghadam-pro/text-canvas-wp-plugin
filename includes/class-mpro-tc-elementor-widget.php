@@ -49,11 +49,42 @@ class MPRO_TC_Elementor_Widget extends \Elementor\Widget_Base {
 		$this->add_control(
 			'default_text',
 			array(
-				'label'       => __( 'Default text', 'mpro-text-canvas' ),
+				'label'       => __( 'Initial text 1', 'mpro-text-canvas' ),
 				'type'        => \Elementor\Controls_Manager::TEXTAREA,
 				'rows'        => 5,
-				'default'     => $admin['default_text'],
+				'default'     => 'Curiosity',
 				'placeholder' => __( 'Write something…', 'mpro-text-canvas' ),
+			)
+		);
+
+		$this->add_control(
+			'default_text_2',
+			array(
+				'label'   => __( 'Initial text 2', 'mpro-text-canvas' ),
+				'type'    => \Elementor\Controls_Manager::TEXTAREA,
+				'rows'    => 3,
+				'default' => 'NEW Products.',
+			)
+		);
+
+		$this->add_control(
+			'default_text_3',
+			array(
+				'label'   => __( 'Initial text 3', 'mpro-text-canvas' ),
+				'type'    => \Elementor\Controls_Manager::TEXTAREA,
+				'rows'    => 3,
+				'default' => 'Exploration',
+			)
+		);
+
+		$this->add_control(
+			'added_text',
+			array(
+				'label'       => __( 'New layer text', 'mpro-text-canvas' ),
+				'type'        => \Elementor\Controls_Manager::TEXTAREA,
+				'rows'        => 3,
+				'default'     => $admin['default_text'],
+				'description' => __( 'Used after a layer is deleted and Add Text becomes available.', 'mpro-text-canvas' ),
 			)
 		);
 
@@ -73,6 +104,7 @@ class MPRO_TC_Elementor_Widget extends \Elementor\Widget_Base {
 			'export_transparent_mobile'=> array( __( 'Transparent export — mobile', 'mpro-text-canvas' ), 'EXPORT PNG' ),
 			'export_bg_label'          => array( __( 'Background export — desktop', 'mpro-text-canvas' ), 'EXPORT WITH BG' ),
 			'export_bg_mobile'         => array( __( 'Background export — mobile', 'mpro-text-canvas' ), 'EXPORT JPG' ),
+			'full_page_label'          => array( __( 'Full-page tool', 'mpro-text-canvas' ), 'OPEN FULL TOOL' ),
 		);
 		foreach ( $labels as $key => $label ) {
 			$this->add_control(
@@ -119,7 +151,7 @@ class MPRO_TC_Elementor_Widget extends \Elementor\Widget_Base {
 				),
 				'default'        => array( 'unit' => 'px', 'size' => 500 ),
 				'tablet_default' => array( 'unit' => 'px', 'size' => 500 ),
-				'mobile_default' => array( 'unit' => 'px', 'size' => 610 ),
+				'mobile_default' => array( 'unit' => 'px', 'size' => 746 ),
 				'selectors'      => array(
 					'{{WRAPPER}} .mpro-tc__frame' => 'height: {{SIZE}}{{UNIT}};',
 				),
@@ -288,8 +320,8 @@ class MPRO_TC_Elementor_Widget extends \Elementor\Widget_Base {
 				'label'      => __( 'Desktop toolbar width', 'mpro-text-canvas' ),
 				'type'       => \Elementor\Controls_Manager::SLIDER,
 				'size_units' => array( 'px', '%' ),
-				'range'      => array( 'px' => array( 'min' => 180, 'max' => 450 ), '%' => array( 'min' => 15, 'max' => 50 ) ),
-				'default'    => array( 'unit' => 'px', 'size' => 308 ),
+				'range'      => array( 'px' => array( 'min' => 80, 'max' => 450 ), '%' => array( 'min' => 10, 'max' => 50 ) ),
+				'default'    => array( 'unit' => 'px', 'size' => 120 ),
 				'selectors'  => array( '{{WRAPPER}} .mpro-tc' => '--mpro-tc-panel-width: {{SIZE}}{{UNIT}};' ),
 			)
 		);
@@ -301,7 +333,7 @@ class MPRO_TC_Elementor_Widget extends \Elementor\Widget_Base {
 				'type'       => \Elementor\Controls_Manager::SLIDER,
 				'size_units' => array( 'px' ),
 				'range'      => array( 'px' => array( 'min' => 0, 'max' => 120 ) ),
-				'default'        => array( 'unit' => 'px', 'size' => 48 ),
+				'default'        => array( 'unit' => 'px', 'size' => 24 ),
 				'mobile_default' => array( 'unit' => 'px', 'size' => 16 ),
 				'selectors'      => array( '{{WRAPPER}} .mpro-tc' => '--mpro-tc-gap: {{SIZE}}{{UNIT}};' ),
 			)
@@ -360,11 +392,11 @@ class MPRO_TC_Elementor_Widget extends \Elementor\Widget_Base {
 	protected function render() {
 		$settings = $this->get_settings_for_display();
 		$fonts    = MPRO_TC_Fonts::get_frontend_fonts();
-		$palette  = MPRO_TC_Fonts::get_site_palette();
-
 		$config = array(
 			'defaultText' => $settings['default_text'],
+			'addedText'   => $settings['added_text'],
 			'maxLayers'   => 3,
+			'initialTexts' => array( $settings['default_text'], $settings['default_text_2'], $settings['default_text_3'] ),
 			'background'  => $settings['background_color'] ?: '#ffb700',
 			'textColor'   => $settings['text_color'] ?: '#000000',
 			'fontFamily'  => $settings['font_family'],
@@ -376,6 +408,11 @@ class MPRO_TC_Elementor_Widget extends \Elementor\Widget_Base {
 				'y'        => $this->slider_value( $settings, 'initial_y', 'desktop', 84 ) / 100,
 				'width'    => $this->slider_value( $settings, 'initial_width', 'desktop', 59 ) / 100,
 				'fontSize' => $this->slider_value( $settings, 'font_size', 'desktop', 24 ),
+				'layers'   => array(
+					array( 'x' => 0.806, 'y' => 0.508, 'width' => 0.191, 'fontSize' => 32, 'rotation' => 5 ),
+					array( 'x' => 0.51, 'y' => 0.718, 'width' => 0.781, 'fontSize' => 62, 'rotation' => 5 ),
+					array( 'x' => 0.732, 'y' => 0.599, 'width' => 0.344, 'fontSize' => 50, 'rotation' => 5 ),
+				),
 			),
 			'tablet'      => array(
 				'x'        => $this->slider_value( $settings, 'initial_x', 'tablet', 68 ) / 100,
@@ -388,9 +425,13 @@ class MPRO_TC_Elementor_Widget extends \Elementor\Widget_Base {
 				'y'        => $this->slider_value( $settings, 'initial_y', 'mobile', 80 ) / 100,
 				'width'    => $this->slider_value( $settings, 'initial_width', 'mobile', 78 ) / 100,
 				'fontSize' => $this->slider_value( $settings, 'font_size', 'mobile', 24 ),
+				'layers'   => array(
+					array( 'x' => 0.70, 'y' => 0.79, 'width' => 0.50, 'fontSize' => 32, 'rotation' => 5 ),
+					array( 'x' => 0.24, 'y' => 0.42, 'width' => 0.95, 'fontSize' => 40, 'rotation' => -90 ),
+					array( 'x' => 0.55, 'y' => 0.87, 'width' => 0.84, 'fontSize' => 48, 'rotation' => 5 ),
+				),
 			),
 			'fonts'        => $fonts,
-			'palette'      => $palette,
 			'labels'       => array(
 				'reset'              => $settings['reset_label'],
 				'add'                => $settings['add_label'],
@@ -398,6 +439,7 @@ class MPRO_TC_Elementor_Widget extends \Elementor\Widget_Base {
 				'transparentMobile'  => $settings['export_transparent_mobile'],
 				'backgroundDesktop'  => $settings['export_bg_label'],
 				'backgroundMobile'   => $settings['export_bg_mobile'],
+				'fullPage'           => $settings['full_page_label'],
 			),
 		);
 
@@ -411,18 +453,20 @@ class MPRO_TC_Elementor_Widget extends \Elementor\Widget_Base {
 						<button class="mpro-tc__tool mpro-tc__tool--background" type="button" data-mpro-tool="background" aria-label="<?php esc_attr_e( 'Choose background color', 'mpro-text-canvas' ); ?>"><span class="mpro-tc__swatch" aria-hidden="true"></span></button>
 						<button class="mpro-tc__tool mpro-tc__tool--text" type="button" data-mpro-tool="text-color" aria-label="<?php esc_attr_e( 'Choose text color', 'mpro-text-canvas' ); ?>"><span class="mpro-tc__swatch" aria-hidden="true"></span></button>
 						<button class="mpro-tc__tool mpro-tc__tool--font" type="button" data-mpro-tool="font" aria-label="<?php esc_attr_e( 'Choose font', 'mpro-text-canvas' ); ?>">Aa</button>
+						<button class="mpro-tc__tool mpro-tc__tool--menu" type="button" data-mpro-menu-toggle aria-label="<?php esc_attr_e( 'Open actions', 'mpro-text-canvas' ); ?>" aria-haspopup="true" aria-expanded="false"><span aria-hidden="true">•••</span></button>
+						<div class="mpro-tc__actions" data-mpro-menu hidden>
+							<button type="button" class="mpro-tc__action" data-mpro-action="reset"><?php echo esc_html( $settings['reset_label'] ); ?></button>
+							<button type="button" class="mpro-tc__action" data-mpro-action="add"><?php echo esc_html( $settings['add_label'] ); ?></button>
+							<button type="button" class="mpro-tc__action" data-mpro-action="export-transparent"><span class="mpro-tc__label--desktop"><?php echo esc_html( $settings['export_transparent_label'] ); ?></span><span class="mpro-tc__label--mobile"><?php echo esc_html( $settings['export_transparent_mobile'] ); ?></span></button>
+							<button type="button" class="mpro-tc__action" data-mpro-action="export-background"><span class="mpro-tc__label--desktop"><?php echo esc_html( $settings['export_bg_label'] ); ?></span><span class="mpro-tc__label--mobile"><?php echo esc_html( $settings['export_bg_mobile'] ); ?></span></button>
+							<a class="mpro-tc__action mpro-tc__action--link" href="https://moghadam.pro/online-story-font"><?php echo esc_html( $settings['full_page_label'] ); ?></a>
+						</div>
 					</div>
 
 					<div class="mpro-tc__arrow" aria-hidden="true">
-						<svg viewBox="0 0 120 120" role="img" focusable="false"><path d="M12 12 L102 102 M102 34 V102 H34" fill="none" stroke="currentColor" stroke-width="14" stroke-linecap="square" stroke-linejoin="miter"/></svg>
+						<img src="<?php echo esc_url( MPRO_TC_URL . 'assets/images/arrow.svg' ); ?>" alt="" width="120" height="120">
 					</div>
 
-					<div class="mpro-tc__actions">
-						<button type="button" class="mpro-tc__action" data-mpro-action="reset"><?php echo esc_html( $settings['reset_label'] ); ?></button>
-						<button type="button" class="mpro-tc__action" data-mpro-action="add"><?php echo esc_html( $settings['add_label'] ); ?></button>
-						<button type="button" class="mpro-tc__action" data-mpro-action="export-transparent"><span class="mpro-tc__label--desktop"><?php echo esc_html( $settings['export_transparent_label'] ); ?></span><span class="mpro-tc__label--mobile"><?php echo esc_html( $settings['export_transparent_mobile'] ); ?></span></button>
-						<button type="button" class="mpro-tc__action" data-mpro-action="export-background"><span class="mpro-tc__label--desktop"><?php echo esc_html( $settings['export_bg_label'] ); ?></span><span class="mpro-tc__label--mobile"><?php echo esc_html( $settings['export_bg_mobile'] ); ?></span></button>
-					</div>
 				</div>
 
 				<div class="mpro-tc__frame" data-mpro-frame role="application" aria-label="<?php esc_attr_e( 'Editable text canvas', 'mpro-text-canvas' ); ?>">

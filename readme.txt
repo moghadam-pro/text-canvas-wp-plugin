@@ -3,7 +3,7 @@ Contributors: moghadam-pro
 Tags: elementor, text editor, canvas, image export, typography
 Requires at least: 5.8
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -17,10 +17,11 @@ Key capabilities:
 
 * Inline click/tap editing
 * Drag positioning
-* Two-finger pinch resizing
+* Two-finger pinch resizing and rotation
+* Desktop rotation handle
 * Maximum three text layers
 * Google Fonts and uploaded fonts
-* Elementor Global Color presets
+* Unrestricted color pickers without inherited palettes
 * Transparent PNG export
 * JPG export with solid background
 * Exact current frame dimensions
@@ -51,10 +52,6 @@ No. The visible frame can use a corner radius, but exports are always rectangula
 
 Three total. The Add Text action disables after the third layer is created.
 
-= Can I use my Elementor site colors? =
-
-Yes. Elementor color controls support Global Colors, and the frontend picker includes colors from the active Elementor Kit.
-
 = Can I upload custom fonts? =
 
 Yes. WOFF2, WOFF, TTF, and OTF files are supported through the WordPress Media Library.
@@ -67,6 +64,14 @@ Yes. WOFF2, WOFF, TTF, and OTF files are supported through the WordPress Media L
 4. Elementor widget controls.
 
 == Changelog ==
+
+= 1.1.0 =
+
+* Added free text rotation on desktop and mobile.
+* Moved actions into a three-dot toolbar menu.
+* Fixed mobile export activation.
+* Limited built-in fonts to Roboto and Vazirmatn.
+* Removed WordPress and Elementor palette integration.
 
 = 1.0.0 =
 

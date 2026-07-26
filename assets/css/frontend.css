@@ -4,8 +4,8 @@
 }
 
 .mpro-tc {
-	--mpro-tc-panel-width: 308px;
-	--mpro-tc-gap: 48px;
+	--mpro-tc-panel-width: 120px;
+	--mpro-tc-gap: 24px;
 	position: relative;
 	width: 100%;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -14,7 +14,7 @@
 
 .mpro-tc__layout {
 	display: grid;
-	grid-template-columns: minmax(180px, var(--mpro-tc-panel-width)) minmax(0, 1fr);
+	grid-template-columns: minmax(80px, var(--mpro-tc-panel-width)) minmax(0, 1fr);
 	gap: var(--mpro-tc-gap);
 	align-items: start;
 	width: 100%;
@@ -24,15 +24,17 @@
 	display: flex;
 	flex-direction: column;
 	min-width: 0;
-	padding-top: 12px;
+	padding-top: 0;
 }
 
 .mpro-tc__tools {
+	position: relative;
 	display: flex;
+	flex-direction: column-reverse;
 	align-items: center;
-	justify-content: flex-end;
-	gap: 18px;
-	min-height: 26px;
+	justify-content: flex-start;
+	gap: 8px;
+	min-height: 168px;
 }
 
 .mpro-tc__tool {
@@ -76,23 +78,45 @@
 	letter-spacing: -0.03em;
 }
 
-.mpro-tc__arrow {
-	width: 124px;
-	height: 124px;
-	margin: 85px 0 30px auto;
-	color: #000;
+.mpro-tc__tool--menu {
+	font-size: 22px;
+	letter-spacing: 2px;
 }
 
-.mpro-tc__arrow svg {
+.mpro-tc__arrow {
+	width: 120px;
+	height: 332px;
+	margin: 0;
+	padding-bottom: 24px;
+	color: #000;
+	display: flex;
+	align-items: flex-end;
+}
+
+.mpro-tc__arrow img {
 	display: block;
 	width: 100%;
-	height: 100%;
+	height: 120px;
 }
 
 .mpro-tc__actions {
+	position: absolute;
+	z-index: 20;
+	top: calc(100% + 12px);
+	left: 0;
+	width: min(280px, calc(100vw - 40px));
 	display: grid;
 	grid-template-columns: 1fr;
-	gap: 16px;
+	gap: 1px;
+	padding: 8px;
+	background: #fff;
+	border: 1px solid rgba(0, 0, 0, 0.12);
+	border-radius: 10px;
+	box-shadow: 0 16px 48px rgba(0, 0, 0, 0.16);
+}
+
+.mpro-tc__actions[hidden] {
+	display: none;
 }
 
 .mpro-tc__action {
@@ -109,6 +133,14 @@
 	padding: 10px 14px;
 	cursor: pointer;
 	transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.mpro-tc__action--link {
+	display: flex;
+	align-items: center;
+	text-decoration: none;
+	border-top: 1px solid rgba(0, 0, 0, 0.12);
+	margin-top: 7px;
 }
 
 .mpro-tc__action:hover {
@@ -206,6 +238,7 @@
 }
 
 .mpro-tc__layer-handle,
+.mpro-tc__layer-rotate,
 .mpro-tc__layer-delete {
 	position: absolute;
 	appearance: none;
@@ -219,8 +252,36 @@
 }
 
 .mpro-tc__layer.is-selected:not(.is-editing) .mpro-tc__layer-handle,
+.mpro-tc__layer.is-selected:not(.is-editing) .mpro-tc__layer-rotate,
 .mpro-tc__layer.is-selected:not(.is-editing) .mpro-tc__layer-delete {
 	display: flex;
+}
+
+.mpro-tc__layer-rotate {
+	left: 50%;
+	top: -34px;
+	width: 18px;
+	height: 18px;
+	margin-left: -9px;
+	border-radius: 50%;
+	background: #fff;
+	box-shadow: 0 0 0 2px #000;
+	cursor: grab;
+	touch-action: none;
+}
+
+.mpro-tc__layer-rotate::after {
+	content: "";
+	position: absolute;
+	top: 18px;
+	left: 8px;
+	width: 2px;
+	height: 16px;
+	background: #000;
+}
+
+.mpro-tc__layer-rotate:active {
+	cursor: grabbing;
 }
 
 .mpro-tc__layer-handle {
@@ -427,48 +488,56 @@
 	}
 
 	.mpro-tc__frame {
-		order: 1;
-		height: 610px;
+		order: 2;
+		height: 746px;
 		padding: 20px;
 		border-radius: 24px;
 	}
 
 	.mpro-tc__toolbar {
-		order: 2;
+		order: 1;
 		display: grid;
 		padding-top: 0;
 		grid-template-columns: 1fr auto;
-		grid-template-areas:
-			"arrow tools"
-			"actions actions";
+		grid-template-areas: "arrow tools";
 		align-items: start;
 		gap: 20px 12px;
 	}
 
 	.mpro-tc__tools {
 		grid-area: tools;
+		flex-direction: row;
 		align-self: center;
-		gap: 18px;
+		justify-content: flex-end;
+		gap: 16px;
+		min-height: 32px;
 	}
 
 	.mpro-tc__arrow {
 		grid-area: arrow;
-		width: 78px;
-		height: 78px;
+		width: 80px;
+		height: 80px;
 		margin: 0;
+		padding: 8px;
+		align-items: center;
 	}
 
-	.mpro-tc__actions {
-		grid-area: actions;
-		grid-template-columns: 1fr 1fr;
-		gap: 16px;
+	.mpro-tc__arrow img {
+		width: 64px;
+		height: 64px;
 	}
 
 	.mpro-tc__action {
-		text-align: center;
+		text-align: right;
 		font-size: 18px;
 		min-height: 44px;
 		padding-inline: 8px;
+	}
+
+	.mpro-tc__actions {
+		left: auto;
+		right: 0;
+		width: min(280px, calc(100vw - 32px));
 	}
 
 	.mpro-tc__label--desktop {

@@ -81,7 +81,7 @@ try:
             time.sleep(.1)
         if not result or result.get('tests') != 'pass':
             raise RuntimeError(f'{name} smoke failed: {result}')
-        expected = [744, 500] if name == 'desktop' else [370, 610]
+        expected = [956, 500] if name == 'desktop' else [370, 746]
         if result.get('frame') != expected:
             raise RuntimeError(f'{name} frame mismatch: {result.get("frame")} != {expected}')
         call('Runtime.evaluate', {'expression': 'document.getElementById("test-results").style.display="none"'})

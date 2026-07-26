@@ -18,6 +18,17 @@
 		return Math.sqrt(dx * dx + dy * dy);
 	}
 
+	function angle(a, b) {
+		return Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI;
+	}
+
+	function normalizeAngle(value) {
+		value = Number(value) || 0;
+		while (value > 180) value -= 360;
+		while (value < -180) value += 360;
+		return value;
+	}
+
 	function rgbToHex(value) {
 		if (!value) return '#000000';
 		if (value.charAt(0) === '#') {
@@ -82,18 +93,19 @@
 	MPROTextCanvas.prototype.readConfig = function () {
 		var fallback = {
 			defaultText: 'YOU CAN EDIT THIS TEXT\nWRITE EVERYTHING YOU WANT\nAND MOVE',
+			addedText: 'YOU CAN EDIT THIS TEXT\nWRITE EVERYTHING YOU WANT\nAND MOVE',
 			maxLayers: 3,
+			initialTexts: ['Curiosity', 'NEW Products.', 'Exploration'],
 			background: '#ffb700',
 			textColor: '#000000',
-			fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+			fontFamily: '"Roboto", sans-serif',
 			fontWeight: '700',
 			lineHeight: 1.45,
 			textAlign: 'right',
 			desktop: { x: 0.68, y: 0.84, width: 0.59, fontSize: 24 },
 			tablet: { x: 0.68, y: 0.84, width: 0.59, fontSize: 24 },
 			mobile: { x: 0.52, y: 0.80, width: 0.78, fontSize: 24 },
-			fonts: [],
-			palette: []
+			fonts: []
 		};
 		try {
 			var parsed = JSON.parse(this.root.getAttribute('data-mpro-config') || '{}');
@@ -137,14 +149,19 @@
 		this.layers = [];
 		this.selectedLayer = null;
 		this.frame.style.backgroundColor = safeColor(this.initialFrameBackground, this.config.background || '#ffb700');
-		this.createLayer({
-			text: this.config.defaultText,
-			color: this.initialTextColor,
-			fontFamily: this.config.fontFamily,
-			fontWeight: this.config.fontWeight,
-			lineHeight: this.config.lineHeight,
-			textAlign: this.config.textAlign
-		}, false);
+		var initialTexts = Array.isArray(this.config.initialTexts) && this.config.initialTexts.length
+			? this.config.initialTexts.slice(0, Number(this.config.maxLayers || 3))
+			: [this.config.defaultText];
+		for (var index = 0; index < initialTexts.length; index++) {
+			this.createLayer({
+				text: initialTexts[index],
+				color: this.initialTextColor,
+				fontFamily: '"Roboto", sans-serif',
+				fontWeight: this.config.fontWeight,
+				lineHeight: this.config.lineHeight,
+				textAlign: this.config.textAlign
+			}, false);
+		}
 		this.selectLayer(null);
 		this.updateToolbar();
 		this.announce('Canvas reset.');
@@ -158,17 +175,22 @@
 		var layer = document.createElement('div');
 		var text = document.createElement('div');
 		var resize = document.createElement('span');
+		var rotate = document.createElement('span');
 		var remove = document.createElement('button');
 		var id = 'mpro-tc-layer-' + (++uid);
 
 		layer.className = 'mpro-tc__layer';
 		layer.dataset.layerId = id;
-		layer.dataset.x = String(clamp((data.x != null ? data.x : defaults.x) - index * 0.035, 0.05, 0.95));
-		layer.dataset.y = String(clamp((data.y != null ? data.y : defaults.y) - index * 0.06, 0.05, 0.95));
-		layer.dataset.fontSize = String(data.fontSize || defaults.fontSize || 26);
+		var designedLayers = defaults.layers || (this.config.desktop && this.config.desktop.layers) || [];
+		var designed = designedLayers[index] || {};
+		layer.dataset.x = String(clamp(data.x != null ? data.x : (designed.x != null ? designed.x : defaults.x), 0.05, 0.95));
+		layer.dataset.y = String(clamp(data.y != null ? data.y : (designed.y != null ? designed.y : defaults.y), 0.05, 0.95));
+		layer.dataset.fontSize = String(data.fontSize || designed.fontSize || defaults.fontSize || 26);
+		layer.dataset.rotation = String(normalizeAngle(data.rotation != null ? data.rotation : (designed.rotation || 0)));
 		layer.style.left = (Number(layer.dataset.x) * 100) + '%';
 		layer.style.top = (Number(layer.dataset.y) * 100) + '%';
-		layer.style.width = ((data.width != null ? data.width : defaults.width) * 100) + '%';
+		layer.style.width = ((data.width != null ? data.width : (designed.width || defaults.width)) * 100) + '%';
+		layer.style.transform = 'translate(-50%, -50%) rotate(' + layer.dataset.rotation + 'deg)';
 
 		text.className = 'mpro-tc__text';
 		text.setAttribute('contenteditable', 'false');
@@ -190,6 +212,11 @@
 		resize.setAttribute('aria-label', 'Resize text');
 		resize.tabIndex = 0;
 
+		rotate.className = 'mpro-tc__layer-rotate';
+		rotate.setAttribute('role', 'button');
+		rotate.setAttribute('aria-label', 'Rotate text');
+		rotate.tabIndex = 0;
+
 		remove.className = 'mpro-tc__layer-delete';
 		remove.type = 'button';
 		remove.setAttribute('aria-label', 'Delete text layer');
@@ -197,6 +224,7 @@
 
 		layer.appendChild(text);
 		layer.appendChild(resize);
+		layer.appendChild(rotate);
 		layer.appendChild(remove);
 		this.stage.appendChild(layer);
 		this.layers.push(layer);
@@ -208,6 +236,8 @@
 		remove.addEventListener('click', this.removeLayer.bind(this, layer));
 		resize.addEventListener('pointerdown', this.onResizePointerDown.bind(this, layer));
 		resize.addEventListener('keydown', this.onResizeKeyDown.bind(this, layer));
+		rotate.addEventListener('pointerdown', this.onRotatePointerDown.bind(this, layer));
+		rotate.addEventListener('keydown', this.onRotateKeyDown.bind(this, layer));
 		text.addEventListener('paste', this.onPastePlainText.bind(this));
 		text.addEventListener('input', this.onTextInput.bind(this, layer));
 		text.addEventListener('blur', this.onTextBlur.bind(this, layer));
@@ -288,7 +318,9 @@
 			this.gesture = {
 				type: 'pinch',
 				startDistance: Math.max(1, distance(points[0], points[1])),
-				startFontSize: Number(layer.dataset.fontSize)
+				startFontSize: Number(layer.dataset.fontSize),
+				startAngle: angle(points[0], points[1]),
+				startRotation: Number(layer.dataset.rotation || 0)
 			};
 		}
 		event.preventDefault();
@@ -302,6 +334,7 @@
 			var points = Array.from(this.activePointers.values()).slice(0, 2);
 			var ratio = distance(points[0], points[1]) / this.gesture.startDistance;
 			this.setLayerFontSize(layer, this.gesture.startFontSize * ratio);
+			this.setLayerRotation(layer, this.gesture.startRotation + angle(points[0], points[1]) - this.gesture.startAngle);
 			event.preventDefault();
 			return;
 		}
@@ -376,6 +409,39 @@
 		this.setLayerFontSize(layer, Number(layer.dataset.fontSize) + direction * (event.shiftKey ? 5 : 1));
 	};
 
+	MPROTextCanvas.prototype.onRotatePointerDown = function (layer, event) {
+		event.preventDefault();
+		event.stopPropagation();
+		this.selectLayer(layer);
+		var handle = event.currentTarget;
+		var rect = layer.getBoundingClientRect();
+		var center = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+		var startAngle = angle(center, { x: event.clientX, y: event.clientY });
+		var startRotation = Number(layer.dataset.rotation || 0);
+		try { handle.setPointerCapture(event.pointerId); } catch (error) {}
+
+		var onMove = function (moveEvent) {
+			var nextAngle = angle(center, { x: moveEvent.clientX, y: moveEvent.clientY });
+			this.setLayerRotation(layer, startRotation + nextAngle - startAngle);
+		}.bind(this);
+		var onEnd = function (endEvent) {
+			handle.removeEventListener('pointermove', onMove);
+			handle.removeEventListener('pointerup', onEnd);
+			handle.removeEventListener('pointercancel', onEnd);
+			try { handle.releasePointerCapture(endEvent.pointerId); } catch (error) {}
+		};
+		handle.addEventListener('pointermove', onMove);
+		handle.addEventListener('pointerup', onEnd);
+		handle.addEventListener('pointercancel', onEnd);
+	};
+
+	MPROTextCanvas.prototype.onRotateKeyDown = function (layer, event) {
+		if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+		event.preventDefault();
+		var direction = event.key === 'ArrowRight' ? 1 : -1;
+		this.setLayerRotation(layer, Number(layer.dataset.rotation || 0) + direction * (event.shiftKey ? 15 : 1));
+	};
+
 	MPROTextCanvas.prototype.setLayerPosition = function (layer, x, y) {
 		x = clamp(x, 0.02, 0.98);
 		y = clamp(y, 0.02, 0.98);
@@ -389,6 +455,12 @@
 		size = clamp(Number(size) || 10, 10, 200);
 		layer.dataset.fontSize = String(size);
 		layer.querySelector('.mpro-tc__text').style.fontSize = size + 'px';
+	};
+
+	MPROTextCanvas.prototype.setLayerRotation = function (layer, rotation) {
+		rotation = normalizeAngle(rotation);
+		layer.dataset.rotation = String(rotation);
+		layer.style.transform = 'translate(-50%, -50%) rotate(' + rotation + 'deg)';
 	};
 
 	MPROTextCanvas.prototype.removeLayer = function (layer, event) {
@@ -408,6 +480,16 @@
 
 	MPROTextCanvas.prototype.bindToolbar = function () {
 		var self = this;
+		var menuToggle = this.root.querySelector('[data-mpro-menu-toggle]');
+		var menu = this.root.querySelector('[data-mpro-menu]');
+		if (menuToggle && menu) {
+			menuToggle.addEventListener('click', function (event) {
+				event.stopPropagation();
+				var willOpen = menu.hidden;
+				menu.hidden = !willOpen;
+				menuToggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+			});
+		}
 		this.root.querySelectorAll('[data-mpro-action]').forEach(function (button) {
 			button.addEventListener('click', function () {
 				var action = button.getAttribute('data-mpro-action');
@@ -415,6 +497,8 @@
 				if (action === 'add') self.addText();
 				if (action === 'export-transparent') self.exportCanvas(false);
 				if (action === 'export-background') self.exportCanvas(true);
+				if (menu) menu.hidden = true;
+				if (menuToggle) menuToggle.setAttribute('aria-expanded', 'false');
 			});
 		});
 		this.root.querySelectorAll('[data-mpro-tool]').forEach(function (button) {
@@ -434,7 +518,7 @@
 		}
 		this.exitEdit();
 		this.createLayer({
-			text: this.config.defaultText,
+			text: this.config.addedText || this.config.defaultText,
 			color: this.initialTextColor,
 			fontFamily: this.config.fontFamily,
 			fontWeight: this.config.fontWeight,
@@ -543,25 +627,6 @@
 			if (/^#[0-9a-f]{6}$/i.test(hex.value)) picker.value = hex.value;
 		});
 
-		var presets = document.createElement('div');
-		presets.className = 'mpro-tc__color-presets';
-		var palette = (this.config.palette && this.config.palette.length) ? this.config.palette : ((window.mproTextCanvasGlobal && window.mproTextCanvasGlobal.palette) || []);
-		palette.forEach(function (item) {
-			var color = rgbToHex(item.value);
-			var button = document.createElement('button');
-			button.type = 'button';
-			button.className = 'mpro-tc__color-preset';
-			button.style.backgroundColor = color;
-			button.title = item.name || color;
-			button.setAttribute('aria-label', (item.name || 'Color') + ' ' + color);
-			button.addEventListener('click', function () {
-				picker.value = color;
-				hex.value = color;
-			});
-			presets.appendChild(button);
-		});
-		wrap.appendChild(presets);
-
 		var actions = document.createElement('div');
 		actions.className = 'mpro-tc__modal-actions';
 		var cancel = document.createElement('button');
@@ -610,6 +675,12 @@
 			this.layers.forEach(function (layer) { layer.classList.remove('is-selected'); });
 			this.selectedLayer = null;
 			this.updateToolbar();
+		}
+		var menu = this.root.querySelector('[data-mpro-menu]');
+		var toggle = this.root.querySelector('[data-mpro-menu-toggle]');
+		if (menu && !menu.hidden && !menu.contains(event.target) && event.target !== toggle && !toggle.contains(event.target)) {
+			menu.hidden = true;
+			toggle.setAttribute('aria-expanded', 'false');
 		}
 	};
 
@@ -693,11 +764,11 @@
 		context.textAlign = originalAlign;
 	};
 
-	MPROTextCanvas.prototype.exportCanvas = async function (withBackground) {
+	MPROTextCanvas.prototype.exportCanvas = function (withBackground) {
 		this.exitEdit();
 		try {
-			if (document.fonts && document.fonts.ready) await document.fonts.ready;
 			var frameRect = this.frame.getBoundingClientRect();
+			var stageRect = this.stage.getBoundingClientRect();
 			var width = Math.max(1, Math.round(frameRect.width));
 			var height = Math.max(1, Math.round(frameRect.height));
 			var canvas = document.createElement('canvas');
@@ -715,7 +786,6 @@
 				var textElement = layer.querySelector('.mpro-tc__text');
 				var value = textFromElement(textElement);
 				if (!value) return;
-				var rect = textElement.getBoundingClientRect();
 				var style = getComputedStyle(textElement);
 				var fontSize = parseFloat(style.fontSize) || 16;
 				var lineHeight = parseFloat(style.lineHeight);
@@ -734,12 +804,17 @@
 				context.textAlign = align;
 				if ('direction' in context) context.direction = direction;
 
-				var left = rect.left - frameRect.left;
-				var top = rect.top - frameRect.top;
-				var maxWidth = Math.max(1, rect.width);
+				var maxWidth = Math.max(1, textElement.offsetWidth);
+				var layerCenterX = stageRect.left - frameRect.left + Number(layer.dataset.x) * stageRect.width;
+				var layerCenterY = stageRect.top - frameRect.top + Number(layer.dataset.y) * stageRect.height;
+				var textHeight = Math.max(lineHeight, textElement.offsetHeight);
+				context.translate(layerCenterX, layerCenterY);
+				context.rotate(Number(layer.dataset.rotation || 0) * Math.PI / 180);
+				var left = -maxWidth / 2;
+				var top = -textHeight / 2;
 				var x = left;
-				if (align === 'center') x = left + maxWidth / 2;
-				if (align === 'right' || align === 'end') x = left + maxWidth;
+				if (align === 'center') x = 0;
+				if (align === 'right' || align === 'end') x = maxWidth / 2;
 				var lines = this.wrapText(context, value, maxWidth);
 				lines.forEach(function (line, index) {
 					this.drawTextWithSpacing(context, line, x, top + index * lineHeight, letterSpacing, align);
@@ -755,6 +830,7 @@
 			var link = document.createElement('a');
 			link.download = filename;
 			link.href = canvas.toDataURL(mime, quality);
+			link.rel = 'noopener';
 			document.body.appendChild(link);
 			link.click();
 			link.remove();

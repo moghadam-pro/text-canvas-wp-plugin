@@ -4,6 +4,22 @@ All notable changes to **MPRO Text Canvas** are documented in this file.
 
 The project follows [Semantic Versioning](https://semver.org/).
 
+## [1.1.0] - 2026-07-26
+
+### Added
+
+- Three-dot actions menu with a link to the full online tool.
+- Free rotation with a desktop handle and two-finger touch gestures.
+- Rotation-aware PNG and JPG rendering.
+
+### Changed
+
+- Moved Reset, Add Text, and both export actions into the top toolbar menu.
+- Limited built-in fonts to Roboto and Vazirmatn; administrator-added fonts remain available.
+- Made all three initial text layers use Roboto.
+- Removed WordPress and Elementor color-palette presets from the visitor color picker.
+- Kept mobile export generation inside the initiating tap to avoid browser automatic-download restrictions.
+
 ## [1.0.0] - 2026-07-26
 
 ### Added

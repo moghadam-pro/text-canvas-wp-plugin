@@ -2,7 +2,7 @@
 
 > An interactive, exportable text-composition canvas for Elementor — part of the MPRO plugin suite for WordPress.
 
-[![Version](https://img.shields.io/badge/version-1.0.0-black?style=flat-square)](https://github.com/moghadam-pro/text-canvas-wp-plugin/releases)
+[![Version](https://img.shields.io/badge/version-1.1.0-black?style=flat-square)](https://github.com/moghadam-pro/text-canvas-wp-plugin/releases)
 [![WordPress](https://img.shields.io/badge/WordPress-5.8%2B-3858e9?style=flat-square&logo=wordpress&logoColor=white)](https://wordpress.org)
 [![PHP](https://img.shields.io/badge/PHP-7.4%2B-777bb4?style=flat-square&logo=php&logoColor=white)](https://php.net)
 [![Elementor](https://img.shields.io/badge/Elementor-required-92003b?style=flat-square&logo=elementor&logoColor=white)](https://elementor.com)
@@ -17,9 +17,9 @@
 The widget follows the supplied desktop and mobile layouts:
 
 - It always fills the width of the Elementor container that contains it.
-- The default canvas height is **500 px on desktop/tablet** and **610 px on mobile**.
-- Desktop uses a left control panel and right canvas.
-- Mobile places the canvas first, followed by the compact toolbar and two-column action grid.
+- The default canvas height is **500 px on desktop/tablet** and **746 px on mobile**.
+- Desktop uses a compact control column and right canvas.
+- Mobile places the canvas first, followed by the compact toolbar.
 - Export dimensions are exactly the rendered canvas dimensions.
 - Exported images are always rectangular; the visual corner radius is intentionally excluded.
 
@@ -44,8 +44,9 @@ The widget follows the supplied desktop and mobile layouts:
 - **Inline editing** — click or tap a text layer to enter editing mode.
 - **Exit editing naturally** — click or tap anywhere outside the active layer.
 - **Drag positioning** — move each text layer freely inside the canvas.
-- **Pinch-to-resize** — use two fingers on touch devices to resize text.
+- **Pinch and rotate** — use two fingers on touch devices to resize and rotate text.
 - **Visible resize handle** — mouse and keyboard users can resize the selected layer.
+- **Visible rotation handle** — mouse and keyboard users can freely rotate the selected layer.
 - **Up to three text layers** — the Add Text action disables automatically at the limit.
 - **Layer deletion** — use the selected-layer delete control or the Delete/Backspace key.
 - **Plain-text paste** — pasted formatting is stripped to keep output predictable.
@@ -57,7 +58,8 @@ The widget follows the supplied desktop and mobile layouts:
 - **Background color swatch** opens a color-picker modal.
 - **Text color swatch** changes the selected layer color.
 - **Aa font control** opens the configured font library.
-- **Reset** restores all text layers, colors, font choices, sizes, and positions to widget defaults.
+- A **three-dot menu** contains Reset, Add Text, both exports, and a link to the full online tool.
+- **Reset** restores all text layers, colors, font choices, sizes, rotations, and positions to widget defaults.
 - **Add Text** creates another editable layer using the default text and style.
 - **Export Transparent / Export PNG** downloads a transparent PNG.
 - **Export With BG / Export JPG** downloads a JPG with the current canvas background.
@@ -103,9 +105,7 @@ Available under **MPRO → Text Canvas**:
 
 ### Site color integration
 
-- Elementor color controls retain access to Elementor Global Colors.
-- The visitor-facing color picker also includes the active Elementor Kit's system and custom color palette.
-- Plugin defaults, white, and black are always available as presets.
+- Visitor color pickers accept unrestricted colors and do not inherit WordPress or Elementor palettes.
 
 ---
 
@@ -159,7 +159,7 @@ Then activate the plugin from **Plugins → Installed Plugins**.
 | Control | Responsive | Default |
 | --- | --- | --- |
 | Background color | No | Admin default (`#ffb700`) |
-| Height | Yes | 500 px desktop/tablet, 610 px mobile |
+| Height | Yes | 500 px desktop/tablet, 746 px mobile |
 | Corner radius | Yes | 44 px desktop, 24 px mobile |
 | Inner padding | Yes | 32 px desktop, 20 px mobile |
 
@@ -181,8 +181,8 @@ Then activate the plugin from **Plugins → Installed Plugins**.
 
 | Control | Responsive | Default |
 | --- | --- | --- |
-| Desktop toolbar width | Yes | 308 px |
-| Layout gap | Yes | 48 px desktop, 16 px mobile |
+| Desktop toolbar width | Yes | 120 px |
+| Layout gap | Yes | 24 px desktop, 16 px mobile |
 | Button background | No | `#f5f4ef` |
 | Button text color | No | Black |
 | Button radius | Yes | 4 px |
@@ -197,6 +197,7 @@ Then activate the plugin from **Plugins → Installed Plugins**.
 | Finish editing | Click outside | Tap outside |
 | Move text | Drag layer | Drag layer |
 | Resize text | Drag resize handle; arrow keys on focused handle | Two-finger pinch or drag handle |
+| Rotate text | Drag rotation handle; arrow keys on focused handle | Two-finger twist |
 | Delete text | Delete button or Delete/Backspace | Delete button |
 | Change font | Select layer, then click Aa | Select layer, then tap Aa |
 | Change text color | Select layer, then click text swatch | Select layer, then tap text swatch |
@@ -223,8 +224,8 @@ The JPG contains the current background color across the complete rectangular im
 
 The plugin reads the live frame dimensions immediately before export. Examples using the default design:
 
-- Desktop: `744 × 500 px` when placed in the supplied `1100 px` composition.
-- Mobile: `370 × 610 px` in a `370 px` wide container.
+- Desktop: `956 × 500 px` when placed in the supplied `1100 px` composition.
+- Mobile: `370 × 746 px` in a `370 px` wide container.
 
 A different Elementor container width produces a correspondingly different export width. The configured frame height remains in effect.
 
@@ -275,7 +276,7 @@ mpro-text-canvas/
 - Registers the shared MPRO admin menu and plugin settings.
 - Registers frontend assets without globally enqueueing the widget bundle.
 - Registers the Elementor widget through `elementor/widgets/register`.
-- Exposes Elementor Kit colors to the frontend picker.
+- Keeps visitor color controls independent from WordPress and Elementor palettes.
 - Registers Google Fonts as optional stylesheet dependencies.
 - Generates safe `@font-face` declarations for uploaded files.
 
@@ -387,11 +388,10 @@ Elementor is required for rendering the widget. The administration page remains 
 
 ---
 
-## Known Scope of v1.0.0
+## Known Scope of v1.1.0
 
 - Text layers are intentionally limited to three.
-- Pinch gestures resize text but do not rotate it.
-- The exporter supports text and solid background colors; image backgrounds are not part of v1.0.0.
+- The exporter supports text and solid background colors; image backgrounds are not part of v1.1.0.
 - User compositions are not persisted between page visits.
 - Export resolution follows CSS pixels rather than applying an automatic high-density multiplier.
 

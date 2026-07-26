@@ -6,16 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class MPRO_TC_Fonts {
 	public static function system_fonts() {
 		return array(
-			'Arial'               => 'Arial, Helvetica, sans-serif',
-			'Helvetica'           => 'Helvetica, Arial, sans-serif',
-			'Inter'               => 'Inter, sans-serif',
-			'Georgia'             => 'Georgia, serif',
-			'Times New Roman'     => '"Times New Roman", Times, serif',
-			'Trebuchet MS'        => '"Trebuchet MS", sans-serif',
-			'Courier New'         => '"Courier New", monospace',
-			'System UI'           => '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-			'Vazirmatn'           => 'Vazirmatn, Tahoma, sans-serif',
-			'Tahoma'              => 'Tahoma, sans-serif',
+			'Roboto'    => '"Roboto", sans-serif',
+			'Vazirmatn' => '"Vazirmatn", sans-serif',
 		);
 	}
 
@@ -135,43 +127,4 @@ final class MPRO_TC_Fonts {
 		return isset( $map[ $ext ] ) ? $map[ $ext ] : 'woff2';
 	}
 
-	public static function get_site_palette() {
-		$palette  = array();
-		$settings = self::settings();
-		$palette[] = array( 'name' => __( 'Default background', 'mpro-text-canvas' ), 'value' => $settings['background_color'] );
-		$palette[] = array( 'name' => __( 'Default text', 'mpro-text-canvas' ), 'value' => $settings['text_color'] );
-		$palette[] = array( 'name' => __( 'White', 'mpro-text-canvas' ), 'value' => '#ffffff' );
-		$palette[] = array( 'name' => __( 'Black', 'mpro-text-canvas' ), 'value' => '#000000' );
-
-		if ( class_exists( '\Elementor\Plugin' ) ) {
-			try {
-				$kit = \Elementor\Plugin::$instance->kits_manager->get_active_kit();
-				if ( $kit && method_exists( $kit, 'get_settings_for_display' ) ) {
-					foreach ( array( 'system_colors', 'custom_colors' ) as $setting_key ) {
-						$colors = $kit->get_settings_for_display( $setting_key );
-						if ( is_array( $colors ) ) {
-							foreach ( $colors as $color ) {
-								if ( empty( $color['_id'] ) || empty( $color['color'] ) ) {
-									continue;
-								}
-								$palette[] = array(
-									'name'  => ! empty( $color['title'] ) ? $color['title'] : $color['_id'],
-									'value' => $color['color'],
-								);
-							}
-						}
-					}
-				}
-			} catch ( Throwable $e ) {
-				// Elementor internals can differ between versions; defaults remain available.
-			}
-		}
-
-		$unique = array();
-		foreach ( $palette as $item ) {
-			$key = strtolower( $item['value'] );
-			$unique[ $key ] = $item;
-		}
-		return array_values( $unique );
-	}
 }

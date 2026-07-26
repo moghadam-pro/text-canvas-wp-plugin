@@ -11,29 +11,30 @@ html,body{margin:0;min-height:100%;background:#fff}.fixture{width:1100px;margin:
 </style>
 <script>
 window.mproTextCanvasGlobal={
- fonts:[{family:'Arial, Helvetica, sans-serif',label:'Arial — System'},{family:'Georgia, serif',label:'Georgia — System'}],
- palette:[{name:'Yellow',value:'#ffb700'},{name:'Black',value:'#000000'},{name:'White',value:'#ffffff'}],
+ fonts:[{family:'"Roboto", sans-serif',label:'Roboto — System'},{family:'"Vazirmatn", sans-serif',label:'Vazirmatn — System'}],
  i18n:{fontTitle:'Choose a font',textColorTitle:'Text color',backgroundTitle:'Background color',apply:'Apply',cancel:'Cancel',maxLayers:'You can add up to three text layers.'}
 };
 </script>
 </head>
 <body>
 <div class="fixture">
-<div class="mpro-tc" data-mpro-config='{"defaultText":"YOU CAN EDIT THIS TEXT\nWRITE EVERYTHING YOU WANT\nAND MOVE","maxLayers":3,"background":"#ffb700","textColor":"#000000","fontFamily":"Arial, Helvetica, sans-serif","fontWeight":"700","lineHeight":1.45,"textAlign":"right","desktop":{"x":0.68,"y":0.84,"width":0.59,"fontSize":24},"tablet":{"x":0.68,"y":0.84,"width":0.59,"fontSize":24},"mobile":{"x":0.52,"y":0.80,"width":0.78,"fontSize":24},"fonts":[{"family":"Arial, Helvetica, sans-serif","label":"Arial — System"},{"family":"Georgia, serif","label":"Georgia — System"}],"palette":[{"name":"Yellow","value":"#ffb700"},{"name":"Black","value":"#000000"},{"name":"White","value":"#ffffff"}]}'>
+<div class="mpro-tc" data-mpro-config='{"defaultText":"Curiosity","addedText":"YOU CAN EDIT THIS TEXT","maxLayers":3,"initialTexts":["Curiosity","NEW Products.","Exploration"],"background":"#ffb700","textColor":"#000000","fontFamily":"\"Roboto\", sans-serif","fontWeight":"700","lineHeight":1.45,"textAlign":"right","desktop":{"x":0.68,"y":0.84,"width":0.59,"fontSize":24,"layers":[{"x":0.806,"y":0.508,"width":0.191,"fontSize":32,"rotation":5},{"x":0.51,"y":0.718,"width":0.781,"fontSize":62,"rotation":5},{"x":0.732,"y":0.599,"width":0.344,"fontSize":50,"rotation":5}]},"tablet":{"x":0.68,"y":0.84,"width":0.59,"fontSize":24},"mobile":{"x":0.52,"y":0.80,"width":0.78,"fontSize":24,"layers":[{"x":0.7,"y":0.79,"width":0.5,"fontSize":32,"rotation":5},{"x":0.24,"y":0.42,"width":0.95,"fontSize":40,"rotation":-90},{"x":0.55,"y":0.87,"width":0.84,"fontSize":48,"rotation":5}]},"fonts":[{"family":"\"Roboto\", sans-serif","label":"Roboto — System"},{"family":"\"Vazirmatn\", sans-serif","label":"Vazirmatn — System"}]}'>
   <div class="mpro-tc__layout">
     <div class="mpro-tc__toolbar" aria-label="Text canvas controls">
       <div class="mpro-tc__tools">
         <button class="mpro-tc__tool mpro-tc__tool--background" type="button" data-mpro-tool="background"><span class="mpro-tc__swatch"></span></button>
         <button class="mpro-tc__tool mpro-tc__tool--text" type="button" data-mpro-tool="text-color"><span class="mpro-tc__swatch"></span></button>
         <button class="mpro-tc__tool mpro-tc__tool--font" type="button" data-mpro-tool="font">Aa</button>
+        <button class="mpro-tc__tool mpro-tc__tool--menu" type="button" data-mpro-menu-toggle aria-expanded="false">•••</button>
+        <div class="mpro-tc__actions" data-mpro-menu hidden>
+          <button type="button" class="mpro-tc__action" data-mpro-action="reset">RESET</button>
+          <button type="button" class="mpro-tc__action" data-mpro-action="add">ADD TEXT</button>
+          <button type="button" class="mpro-tc__action" data-mpro-action="export-transparent"><span class="mpro-tc__label--desktop">EXPORT TRANSPARENT</span><span class="mpro-tc__label--mobile">EXPORT PNG</span></button>
+          <button type="button" class="mpro-tc__action" data-mpro-action="export-background"><span class="mpro-tc__label--desktop">EXPORT WITH BG</span><span class="mpro-tc__label--mobile">EXPORT JPG</span></button>
+          <a class="mpro-tc__action mpro-tc__action--link" href="https://moghadam.pro/online-story-font">OPEN FULL TOOL</a>
+        </div>
       </div>
-      <div class="mpro-tc__arrow"><svg viewBox="0 0 120 120"><path d="M12 12 L102 102 M102 34 V102 H34" fill="none" stroke="currentColor" stroke-width="14" stroke-linecap="square" stroke-linejoin="miter"/></svg></div>
-      <div class="mpro-tc__actions">
-        <button type="button" class="mpro-tc__action" data-mpro-action="reset">RESET</button>
-        <button type="button" class="mpro-tc__action" data-mpro-action="add">ADD TEXT</button>
-        <button type="button" class="mpro-tc__action" data-mpro-action="export-transparent"><span class="mpro-tc__label--desktop">EXPORT TRANSPARENT</span><span class="mpro-tc__label--mobile">EXPORT PNG</span></button>
-        <button type="button" class="mpro-tc__action" data-mpro-action="export-background"><span class="mpro-tc__label--desktop">EXPORT WITH BG</span><span class="mpro-tc__label--mobile">EXPORT JPG</span></button>
-      </div>
+      <div class="mpro-tc__arrow"><img src="../assets/images/arrow.svg" alt="" width="120" height="120"></div>
     </div>
     <div class="mpro-tc__frame" data-mpro-frame role="application"><div class="mpro-tc__stage" data-mpro-stage></div></div>
   </div>
@@ -49,7 +50,8 @@ setTimeout(async function(){
  const results=[];
  const pass=(name,condition)=>results.push(name+':' +(condition?'pass':'fail'));
  pass('init',root.dataset.mproInitialized==='true');
- pass('initial-layer',root.querySelectorAll('.mpro-tc__layer').length===1);
+ pass('initial-layers',root.querySelectorAll('.mpro-tc__layer').length===3);
+ pass('default-fonts',Array.from(root.querySelectorAll('.mpro-tc__text')).every(el=>el.style.fontFamily.toLowerCase().includes('roboto')));
 
  let layer=root.querySelector('.mpro-tc__layer');
  const pointer=(type,id,x,y)=>new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:id,pointerType:'touch',clientX:x,clientY:y,isPrimary:id===1});
@@ -68,23 +70,34 @@ setTimeout(async function(){
  const startSize=Number(layer.dataset.fontSize);
  layer.dispatchEvent(pointer('pointerdown',3,130,350));
  layer.dispatchEvent(pointer('pointerdown',4,170,350));
- layer.dispatchEvent(pointer('pointermove',4,220,350));
- layer.dispatchEvent(pointer('pointerup',4,220,350));
+ layer.dispatchEvent(pointer('pointermove',4,220,390));
+ layer.dispatchEvent(pointer('pointerup',4,220,390));
  layer.dispatchEvent(pointer('pointerup',3,130,350));
  pass('pinch-resize',Number(layer.dataset.fontSize)>startSize);
+ pass('pinch-rotate',Math.abs(Number(layer.dataset.rotation))>1);
+ const rotationBeforeHandle=Number(layer.dataset.rotation);
+ const rotateHandle=layer.querySelector('.mpro-tc__layer-rotate');
+ rotateHandle.dispatchEvent(pointer('pointerdown',8,160,300));
+ rotateHandle.dispatchEvent(pointer('pointermove',8,210,350));
+ rotateHandle.dispatchEvent(pointer('pointerup',8,210,350));
+ pass('desktop-rotate-handle',Math.abs(Number(layer.dataset.rotation)-rotationBeforeHandle)>1);
 
  root.querySelector('[data-mpro-action="reset"]').click();
- const add=root.querySelector('[data-mpro-action="add"]'); add.click(); add.click(); add.click();
+ const add=root.querySelector('[data-mpro-action="add"]'); add.click();
  pass('max-layers',root.querySelectorAll('.mpro-tc__layer').length===3);
  pass('add-disabled',add.disabled);
  root.querySelector('[data-mpro-action="reset"]').click();
- pass('reset',root.querySelectorAll('.mpro-tc__layer').length===1);
+ pass('reset',root.querySelectorAll('.mpro-tc__layer').length===3);
+ const menu=root.querySelector('[data-mpro-menu]');
+ root.querySelector('[data-mpro-menu-toggle]').click();
+ pass('actions-menu',!menu.hidden && menu.querySelectorAll('[data-mpro-action]').length===4 && !!menu.querySelector('a[href="https://moghadam.pro/online-story-font"]'));
 
  root.querySelector('[data-mpro-tool="font"]').click();
  pass('font-modal',!root.querySelector('[data-mpro-modal]').hidden && root.querySelectorAll('.mpro-tc__font-option').length===2);
  root.querySelector('[data-mpro-modal-close]').click();
  root.querySelector('[data-mpro-tool="background"]').click();
  pass('color-modal',!root.querySelector('[data-mpro-modal]').hidden && !!root.querySelector('.mpro-tc__color-main input[type="color"]'));
+ pass('no-color-presets',!root.querySelector('.mpro-tc__color-preset'));
  root.querySelector('[data-mpro-modal-close]').click();
 
  const downloads=[];

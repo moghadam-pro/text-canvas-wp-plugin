@@ -3,7 +3,7 @@
  * Plugin Name:       MPRO Text Canvas
  * Plugin URI:        https://moghadam.pro/mpro-plugins
  * Description:       An interactive, exportable text canvas for Elementor with inline editing, drag, pinch-to-resize, custom fonts, and transparent/background image export.
- * Version:           1.0.0
+ * Version:           1.1.0
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            Sayid Moghadam
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'MPRO_TC_VERSION', '1.0.0' );
+define( 'MPRO_TC_VERSION', '1.1.0' );
 define( 'MPRO_TC_FILE', __FILE__ );
 define( 'MPRO_TC_PATH', plugin_dir_path( __FILE__ ) );
 define( 'MPRO_TC_URL', plugin_dir_url( __FILE__ ) );
@@ -81,7 +81,6 @@ final class MPRO_Text_Canvas_Plugin {
 			'mproTextCanvasGlobal',
 			array(
 				'fonts'   => MPRO_TC_Fonts::get_frontend_fonts(),
-				'palette' => MPRO_TC_Fonts::get_site_palette(),
 				'i18n'    => array(
 					'fontTitle'       => __( 'Choose a font', 'mpro-text-canvas' ),
 					'textColorTitle'  => __( 'Text color', 'mpro-text-canvas' ),

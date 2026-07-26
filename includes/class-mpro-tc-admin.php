@@ -16,7 +16,7 @@ final class MPRO_TC_Admin {
 			'default_text'   => "YOU CAN EDIT THIS TEXT\nWRITE EVERYTHING YOU WANT\nAND MOVE",
 			'background_color' => '#ffb700',
 			'text_color'       => '#000000',
-			'default_font'     => 'Arial, Helvetica, sans-serif',
+			'default_font'     => '"Roboto", sans-serif',
 			'google_fonts'     => array(),
 			'uploaded_fonts'   => array(),
 		);
